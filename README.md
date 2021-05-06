@@ -5,7 +5,7 @@ This is a game similar to [Crossy Road](https://play.google.com/store/apps/detai
 
 It is made using **Unity Game Engine version 2020.3.7f1 (LTS)** with *Universal Render Pipeline* (URP).
 
-All 3D assets come from kenney.nl:
+All 3D assets come from [kenney.nl](https://kenney.nl/):
 - https://kenney.nl/assets/retro-urban-kit
 - https://kenney.nl/assets/car-kit
 - https://kenney.nl/assets/3d-road-tiles
