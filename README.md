@@ -13,11 +13,12 @@ All 3D assets come from [kenney.nl](https://kenney.nl/):
 - https://kenney.nl/assets/nature-kit
 
 Main colors:
-#DE8155 - orange
-#3E99DE - blue 
-#DE4D49 - red
-#6ADE91 - green
-#DEAB5F - light orange
+- #DE8155 - orange
+- #3E99DE - blue 
+- #DE4D49 - red
+- #6ADE91 - green
+- #DEAB5F - light orange
+
 
 ## Tasks
 
