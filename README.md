@@ -23,11 +23,12 @@ Main colors:
 ## Tasks
 
 ### Scenes
-- [ ] Main menu 
-  - [ ] 2 buttons:
-    - [ ] Play button which leads to Game scene
-    - [ ] Button that toggles music and sound effects in whole game
-  - [ ] Background music
+- [X] Main menu 
+  - [X] 2 buttons:
+    - [X] Play button which leads to Game scene
+    - [X] Button that toggles music and sound effects in whole game
+    - [x] (optional) Quit button
+  - [X] Background music
 - [ ] Game
   - [ ] Player
   - [ ] Environment
