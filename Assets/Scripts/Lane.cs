@@ -18,6 +18,7 @@ public class Lane
     public List<GameObject> vehicles;           // All vehicles in this lane
     public List<GameObject> obstacles;          // All obstacles in this lane
     public List<GameObject> collectibles;       // All collectibles in this lane
+    public Transform parent;                    // All entities in lane are child of this objecy
 
     // Empty constructor is safe lane
     public Lane() : this(LaneType.safe) { }

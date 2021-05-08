@@ -4,17 +4,33 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    // Singleton pattern
+    private static Player _instance;
+    public static Player Instance { get { return _instance; } }
+
     private int _coins;
+    private int _steps;
     private int playerBounds;
 
     [Header("Particles")]
     public GameObject deathParticles;
+    public ParticleSystem moveParticles;
 
     // Getter for coins
     public int Coins { get { return _coins; } }
+    public int Steps { get { return _steps; } }
 
-    // Start is called before the first frame update
-    void Start()
+	private void Awake()
+	{
+        // Singleton pattern
+        if (_instance != null && _instance != this)
+            Destroy(this.gameObject);
+        else
+            _instance = this;
+    }
+
+	// Start is called before the first frame update
+	void Start()
     {
         playerBounds = GameManager.Instance.playerBounds;
     }
@@ -35,9 +51,28 @@ public class Player : MonoBehaviour
 
 	private void Move(Vector3 pos, float rot)
     {
+        // Dont go left/right out of bounds
+        if (pos.x <= -playerBounds || pos.x >= playerBounds)
+            return;
+
+        // Dont go back behind start line
+        if (pos.z < 0)
+            return;
+
+        // Check if there is an obstacle here
+        foreach(GameObject o in GameManager.Instance.Lanes[(int)pos.z].obstacles)
+            if(o.transform.position.x == pos.x) 
+                return;
+
+        // Actually move
         AudioManager.Instance.Play("Player Jump");
+        moveParticles.Play();
         transform.position = pos;
         transform.rotation = Quaternion.Euler(0, rot, 0);
+
+        // Check for increased steps
+        if (pos.z > _steps)
+            _steps = (int)pos.z;
     }
 
 	private void OnTriggerEnter(Collider other)

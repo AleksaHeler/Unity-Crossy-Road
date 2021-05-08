@@ -28,7 +28,6 @@ public class GameManager : MonoBehaviour
 
 	// Parameters
 	[Header("Temporary")]
-	public int generateNLanes = 10;
 	public GameObject audioManagerPrefab;
 	[Header("Player")]
 	public GameObject playerPrefab;
@@ -40,14 +39,19 @@ public class GameManager : MonoBehaviour
 	public float logFrequency = 0.2f;
 	public float collectibleFrequency = 0.1f;
 	public int laneWidth = 10;
+	public int lanesInFrontOfPlayer = 20;		// How many lanes to prepare in front and behind player
+	public int lanesBehindOfPlayer = 10;
 	public float minSpeed = 0.7f;
 	public float maxSpeed = 2f;
-	public int playerBounds = 5; // how many tiles can player move left/right not to go off the screen
+	public int playerBounds = 5;				// how many tiles can player move left/right not to go off the screen
 
 	// Variables
-	public Prefab[] prefabs;                                    // Prefabs to spawn for tiles, cars, trees...
-	private GameObject environment;                             // Put everything in one gameobject
-	Dictionary<int, Lane> lanes = new Dictionary<int, Lane>();  // Keeping track of lanes (Lane class)
+	public Prefab[] prefabs;											// Prefabs to spawn for tiles, cars, trees...
+	private GameObject environment;										// Put everything in one gameobject
+	private Dictionary<int, Lane> lanes = new Dictionary<int, Lane>();  // Keeping track of lanes (Lane class)
+	public Dictionary<int, Lane> Lanes { get { return lanes; } }
+	private Player player;
+	private Vector3 prevPlayerPos;
 
 	// Start is called before the first frame update
 	void Awake()
@@ -67,8 +71,8 @@ public class GameManager : MonoBehaviour
 		else
 			Random.InitState((int)System.DateTime.Now.Ticks);
 
-		// Hard coded generate some number of lanes in advance
-		for (int i = -5; i < 50; i++)
+		// Generate first lanes
+		for (int i = -lanesBehindOfPlayer + 1; i < lanesInFrontOfPlayer; i++) 
 		{
 			GenerateLane(i);
 		}
@@ -82,23 +86,63 @@ public class GameManager : MonoBehaviour
 		if (AudioManager.Instance == null)
 			Instantiate(audioManagerPrefab, Vector3.zero, Quaternion.identity);
 		AudioManager.Instance.Play("Car Noise");
+
+		// Local reference to player
+		player = Player.Instance;
+		prevPlayerPos = player.transform.position;
+	}
+
+	private void Update()
+	{
+		if (player == null)
+			return;
+
+		int newZ = (int)player.transform.position.z;
+		int oldZ = (int)prevPlayerPos.z;
+
+		// If the player changed lanes, create new ones and deactivate old ones not needed
+		if (newZ > oldZ)    // Player moved forwards
+		{
+			// deactivate backmost lane
+			Lane backLane = lanes[newZ - lanesBehindOfPlayer];
+			if (backLane != null)
+				backLane.parent.gameObject.SetActive(false);
+			// Generate/activate new lane
+			GenerateLane(newZ + lanesInFrontOfPlayer - 1);
+		}
+		else if (newZ < oldZ) // Player moved backwards
+		{
+			// deactivate frontmost lane
+			Lane frontLane = lanes[newZ + lanesInFrontOfPlayer];
+			if (frontLane != null)
+				frontLane.parent.gameObject.SetActive(false);
+			// Generate/activate new lane
+			GenerateLane(newZ - lanesBehindOfPlayer + 1);
+		}
+
+		if (newZ != oldZ)
+			prevPlayerPos = player.transform.position;
 	}
 
 	private void GenerateLane(int lane)
 	{
-		// If the lane is not yet defined, set it to random type
-		if (!lanes.ContainsKey(lane))
+		// If this lane was already defined just set it to active
+		if (lanes.ContainsKey(lane))
 		{
-			// TODO: add biases for different lanes
-			if (lane == 0) // If it is the first lane, it should always be safe
-				lanes.Add(lane, new Lane());
-			else
-				lanes.Add(lane, new Lane((LaneType)Random.Range(0, 3)));
-
-			// Set lane speed and direction
-			lanes[lane].direction = Random.Range(0, 100) > 50 ? -1 : 1;
-			lanes[lane].speed = Random.Range(minSpeed, maxSpeed);
+			lanes[lane].parent.gameObject.SetActive(true);
+			return;
 		}
+
+		// TODO: add biases for different lanes
+		// If the lane is not yet defined, set it to random type
+		if (lane == 0) // If it is the first lane, it should always be safe
+			lanes.Add(lane, new Lane());
+		else
+			lanes.Add(lane, new Lane((LaneType)Random.Range(0, 3)));
+
+		// Set lane speed and direction
+		lanes[lane].direction = Random.Range(0, 100) > 50 ? -1 : 1;
+		lanes[lane].speed = Random.Range(minSpeed, maxSpeed);
 
 		// Get the type of current lane
 		LaneType laneType = lanes[lane].type;
@@ -106,6 +150,7 @@ public class GameManager : MonoBehaviour
 		// Create an empty game object to hold the lane pieces and set it to be child of environment
 		GameObject laneGameObject = new GameObject("Lane " + lane);
 		laneGameObject.transform.parent = environment.transform;
+		lanes[lane].parent = laneGameObject.transform;
 
 		// Was there a vehicle spawned on prev X coord in iteration
 		// So cars wont be so close to each other
