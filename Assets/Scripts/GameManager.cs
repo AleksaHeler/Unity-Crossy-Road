@@ -19,8 +19,17 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    // Singleton pattern
+    private static GameManager _instance;
+    public static GameManager Instance { get { return _instance; } }
+
     // Parameters
+    [Header("Temporary")]
     public int generateNLanes = 10;
+    public GameObject audioManagerPrefab;
+    [Header("Player")]
+    public GameObject playerPrefab;
+    [Header("Level parameters")]
     public bool useSpecifiedSeed = false;
     public int seed = 0;
     public float obstacleFrequency = 0.2f;
@@ -40,6 +49,12 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        // Singleton pattern
+        if (_instance != null && _instance != this)
+            Destroy(this.gameObject);
+        else
+            _instance = this;
+
         // Create the environment gameObject
         environment = new GameObject("Environment");
 
@@ -54,13 +69,17 @@ public class GameManager : MonoBehaviour
 		{
             GenerateLane(i);
         }
+
+        Instantiate(playerPrefab, new Vector3(0, 0.1f, 0), Quaternion.identity);
     }
 
 	private void Start()
-	{
+    {
         // Start playing car sounds
+        if (AudioManager.Instance == null)
+            Instantiate(audioManagerPrefab, Vector3.zero, Quaternion.identity);
         AudioManager.Instance.Play("Car Noise");
-	}
+    }
 
 	private void GenerateLane(int lane)
 	{
@@ -131,7 +150,7 @@ public class GameManager : MonoBehaviour
                 // Mark for next iteration not to have car (too close)
                 vehiclePrevious = true;
                 // Get the prefab and position
-                GameObject prefab = prefabs[Random.Range(8, 15)].gameObject;
+                GameObject prefab = prefabs[Random.Range(9, 15)].gameObject; // 8 is delivery which i dont want to use
                 Vector3 pos = new Vector3(i, 0.1f, lane);
                 GameObject vehicle;
 
@@ -175,7 +194,6 @@ public class GameManager : MonoBehaviour
                 Vector3 pos = new Vector3(i, 0.5f, lane);
                 GameObject coin = Instantiate(prefab, pos, Quaternion.identity, laneGameObject.transform);
                 // Add coin animation script to it and add to lane collectibles list
-                coin.AddComponent<Coin>().SetValues(0.2f, 1.5f, 90);
                 lanes[lane].collectibles.Add(coin);
             }
         }

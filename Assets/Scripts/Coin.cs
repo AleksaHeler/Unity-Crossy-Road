@@ -4,18 +4,11 @@ using UnityEngine;
 
 public class Coin : MonoBehaviour
 {
-    private float amplitude;
-    private float frequency;
-    private float rotSpeed;
+    private float amplitude = 0.2f;
+    private float frequency = 1.5f;
+    private float rotSpeed = 90f;
 
     private Vector3 originalPos;
-
-    public void SetValues(float _amplitude, float _frequency, float _rotSpeed)
-	{
-        amplitude = _amplitude;
-        frequency = _frequency;
-        rotSpeed = _rotSpeed;
-    }
 
 	private void Start()
 	{

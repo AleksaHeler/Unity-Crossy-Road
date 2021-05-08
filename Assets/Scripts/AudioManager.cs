@@ -16,13 +16,9 @@ public class AudioManager : MonoBehaviour
     {
         // Singleton pattern
         if (_instance != null && _instance != this)
-        {
             Destroy(this.gameObject);
-        }
         else
-        {
             _instance = this;
-        }
 
         // Mark this object as dont destroy on load so it persists trough scenes
         DontDestroyOnLoad(gameObject);
