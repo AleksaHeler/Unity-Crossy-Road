@@ -5,10 +5,23 @@ using UnityEngine;
 
 public class UIController : MonoBehaviour
 {
+    // Singleton pattern
+    private static UIController _instance;
+    public static UIController Instance { get { return _instance; } }
+
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI stepsText;
 
     Player player;
+
+	private void Awake()
+	{
+        // Singleton pattern
+        if (_instance != null && _instance != this)
+            Destroy(this.gameObject);
+        else
+            _instance = this;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -28,4 +41,9 @@ public class UIController : MonoBehaviour
             stepsText.text = player.Steps.ToString();
         }
     }
+
+    public void GameOver()
+	{
+
+	}
 }

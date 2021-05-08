@@ -133,7 +133,6 @@ public class GameManager : MonoBehaviour
 			return;
 		}
 
-		// TODO: add biases for different lanes
 		// If the lane is not yet defined, set it to random type
 		if (lane == 0) // If it is the first lane, it should always be safe
 			lanes.Add(lane, new Lane());
@@ -156,71 +155,49 @@ public class GameManager : MonoBehaviour
 		// So cars wont be so close to each other
 		bool vehiclePrevious = false;
 		int logPrevious = 0;
+
+		// What tile to place
+		GameObject tile = null;
+		switch (laneType)
+		{
+			case LaneType.safe:
+				tile = prefabs[0].gameObject;
+				break;
+			case LaneType.road:
+				tile = prefabs[1].gameObject;
+				break;
+			case LaneType.water:
+				tile = prefabs[3].gameObject;
+				break;
+			default:
+				break;
+		}
+
 		// Go trough the lane and place tiles
 		for (int i = -laneWidth; i < laneWidth; i++)
 		{
-			// What tile to place
-			GameObject tile = null;
-
-			switch (laneType)
-			{
-				case LaneType.safe:
-					tile = prefabs[0].gameObject;
-					break;
-				case LaneType.road:
-					tile = prefabs[1].gameObject;
-					break;
-				case LaneType.water:
-					tile = prefabs[3].gameObject;
-					break;
-				default:
-					break;
-			}
-
-			// If we successfuly selected a prefab, then spawn it
+			// If we successfuly selected a tile prefab, then spawn it
 			if (tile != null)
-			{
-				Vector3 pos = new Vector3(i, 0, lane);
-				lanes[lane].tiles.Add(Instantiate(tile, pos, Quaternion.identity, laneGameObject.transform));
-			}
+				lanes[lane].tiles.Add(Instantiate(tile, new Vector3(i, 0, lane), Quaternion.identity, laneGameObject.transform));
 
-			// On safe tiles, randomly place trees (but not on tile 0,0 - start tile)
-			if (laneType == LaneType.safe && Random.Range(0, 100) < 100 * obstacleFrequency && lane != 0 && i != 0)
+			// Do this if the lane is 'safe'
+			if (laneType == LaneType.safe)
 			{
-				GameObject prefab = prefabs[Random.Range(4, 8)].gameObject;
-				Vector3 pos = new Vector3(i, 0, lane);
-				lanes[lane].obstacles.Add(Instantiate(prefab, pos, Quaternion.identity, laneGameObject.transform));
-			}
-			// If we are on a safe lane inside player move zone and havent placed an obstacle, then place coins randomly
-			else if (lanes[lane].type == LaneType.safe && i > -playerBounds && i < playerBounds && lane > 0 && Random.Range(0.0f, 1f) < collectibleFrequency)
-			{
-				GenerateCoin(new Vector3(i, 0.5f, lane), laneGameObject.transform);
+				// On random chance (and if coordinates arent 0,0 - start coordinates)
+				if (Random.Range(0f, 1f) < obstacleFrequency && lane != 0 && i != 0)
+					GenerateTree(new Vector3(i, 0, lane), laneGameObject.transform);
+				// If we are on a safe lane inside player move zone and havent placed an obstacle, then place coins randomly
+				else if (i > -playerBounds && i < playerBounds && lane > 0 && Random.Range(0f, 1f) < collectibleFrequency)
+					GenerateCoin(new Vector3(i, 0.5f, lane), laneGameObject.transform);
 			}
 
 			// On roads put cars at given frequency
 			if (laneType == LaneType.road && Random.Range(0, 100) < 100 * vehicleFrequency && !vehiclePrevious)
 			{
-				// Mark for next iteration not to have car (too close)
-				vehiclePrevious = true;
-				// Get the prefab and position
-				GameObject prefab = prefabs[Random.Range(9, 15)].gameObject; // 8 is delivery which i dont want to use
-				Vector3 pos = new Vector3(i, 0.1f, lane);
-				GameObject vehicle;
-
-				// Spawn based on direction and speed
-				if (lanes[lane].direction < 0)
-				{
-					vehicle = Instantiate(prefab, pos, Quaternion.Euler(0, -90, 0), laneGameObject.transform);
-					vehicle.AddComponent<Vehicle>().SetValues(lanes[lane].speed, Vector3.left, laneWidth);
-				}
-				else
-				{
-					vehicle = Instantiate(prefab, pos, Quaternion.Euler(0, 90, 0), laneGameObject.transform);
-					vehicle.AddComponent<Vehicle>().SetValues(lanes[lane].speed, Vector3.right, laneWidth);
-				}
-				lanes[lane].vehicles.Add(vehicle);
+				vehiclePrevious = true; // Mark for next iteration not to have car (too close)
+				GenerateVehicle(new Vector3(i, 0.1f, lane), laneGameObject.transform);
 			}
-			else if (vehiclePrevious) { vehiclePrevious = false; }
+			else if (vehiclePrevious) vehiclePrevious = false;
 
 			// On water put logs at given frequency
 			if (laneType == LaneType.water && Random.Range(0.0f, 1.0f) < logFrequency && logPrevious <= 0)
@@ -229,10 +206,12 @@ public class GameManager : MonoBehaviour
 				logPrevious = (int)size + 10;
 				GenerateLog(new Vector3(i, 0, lane), size, lanes[lane].direction, laneGameObject.transform);
 			}
-			else if (logPrevious > 0) { logPrevious--; }
-
+			else if (logPrevious > 0) logPrevious--;
 		}
 
+		// If the lane is road and no vehicles were added, add one here
+		if (lanes[lane].type == LaneType.road && lanes[lane].vehicles.Count == 0)
+			GenerateLog(new Vector3(0, 0, lane), Random.Range(2, 5), lanes[lane].direction, laneGameObject.transform);
 		// If the lane is water and no logs were added, add one here
 		if (lanes[lane].type == LaneType.water && lanes[lane].vehicles.Count == 0)
 			GenerateLog(new Vector3(0, 0, lane), Random.Range(2, 5), lanes[lane].direction, laneGameObject.transform);
@@ -240,11 +219,28 @@ public class GameManager : MonoBehaviour
 
 	public void GameOver()
 	{
+		// Stop music and sounds
 		AudioManager.Instance.Stop("Music");
 		AudioManager.Instance.Stop("Car Noise");
+		// Notify other game components that it is game over
+		CameraFollow.Instance.GameOver();
+		UIController.Instance.GameOver();
 	}
 
 	#region Helper functions
+	private void GenerateVehicle(Vector3 pos, Transform parent)
+	{
+		// Get the prefab
+		GameObject prefab = prefabs[Random.Range(9, 15)].gameObject; // 8 is delivery which i dont want to use
+		// Calculate movement direction and rotation for the car
+		Vector3 dir = lanes[(int)pos.z].direction < 0 ? Vector3.left : Vector3.right;
+		float angle = dir == Vector3.left ? -90 : 90;
+		// Instantiate and create the vehicle and add it to list to keep track of it
+		GameObject vehicle = Instantiate(prefab, pos, Quaternion.Euler(0, angle, 0), parent);
+		vehicle.AddComponent<Vehicle>().SetValues(lanes[(int)pos.z].speed,  dir, laneWidth);
+		lanes[(int)pos.z].vehicles.Add(vehicle);
+	}
+
 	private void GenerateLog(Vector3 pos, float size, int dir, Transform parent)
 	{
 		// Get the prefab and position
@@ -266,5 +262,11 @@ public class GameManager : MonoBehaviour
 		lanes[(int)pos.z].collectibles.Add(coin);
 	}
 
+	private void GenerateTree(Vector3 pos, Transform parent)
+	{
+		// Get the prefab and instantiate it in right place
+		GameObject prefab = prefabs[Random.Range(4, 8)].gameObject;
+		lanes[(int)pos.z].obstacles.Add(Instantiate(prefab, pos, Quaternion.identity, parent));
+	}
 	#endregion
 }
