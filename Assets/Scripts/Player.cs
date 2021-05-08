@@ -26,21 +26,25 @@ public class Player : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
             {
                 goal = transform.position + Vector3.forward;
+                transform.rotation = Quaternion.Euler(0, 0, 0);
             }
             // Left
             else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
             {
                 goal = transform.position + Vector3.left;
+                transform.rotation = Quaternion.Euler(0, -90, 0);
             }
             // Right
             else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
             {
                 goal = transform.position + Vector3.right;
+                transform.rotation = Quaternion.Euler(0, 90, 0);
             }
             // Down
             else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
             {
                 goal = transform.position + Vector3.back;
+                transform.rotation = Quaternion.Euler(0, 180, 0);
             }
             if (goal != Vector3.zero && goal.x > -playerBounds && goal.x < playerBounds)
 			{

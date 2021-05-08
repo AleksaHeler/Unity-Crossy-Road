@@ -146,6 +146,11 @@ public class GameManager : MonoBehaviour
 				Vector3 pos = new Vector3(i, 0, lane);
 				lanes[lane].obstacles.Add(Instantiate(prefab, pos, Quaternion.identity, laneGameObject.transform));
 			}
+			// If we are on a safe lane inside player move zone and havent placed an obstacle, then place coins randomly
+			else if (lanes[lane].type == LaneType.safe && i > -playerBounds && i < playerBounds && lane > 0 && Random.Range(0.0f, 1f) < collectibleFrequency)
+			{
+				GenerateCoin(new Vector3(i, 0.5f, lane), laneGameObject.transform);
+			}
 
 			// On roads put cars at given frequency
 			if (laneType == LaneType.road && Random.Range(0, 100) < 100 * vehicleFrequency && !vehiclePrevious)
@@ -181,11 +186,6 @@ public class GameManager : MonoBehaviour
 			}
 			else if (logPrevious > 0) { logPrevious--; }
 
-			// If we are on a safe lane inside player move zone place coins randomly
-			if (lanes[lane].type == LaneType.safe && i > -playerBounds && i < playerBounds && lane > 0 && Random.Range(0.0f, 1f) < collectibleFrequency)
-			{
-				GenerateCoin(new Vector3(i, 0.5f, lane), laneGameObject.transform);
-			}
 		}
 
 		// If the lane is water and no logs were added, add one here
