@@ -195,7 +195,6 @@ public class GameManager : MonoBehaviour
 
 	public void GameOver()
 	{
-		Time.timeScale = 0;
 		AudioManager.Instance.Stop("Music");
 		AudioManager.Instance.Stop("Car Noise");
 	}

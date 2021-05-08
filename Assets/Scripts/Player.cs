@@ -7,6 +7,9 @@ public class Player : MonoBehaviour
     private int _coins;
     private int playerBounds;
 
+    [Header("Particles")]
+    public GameObject deathParticles;
+
     // Getter for coins
     public int Coins { get { return _coins; } }
 
@@ -19,39 +22,22 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.anyKeyDown)
-        {
-            Vector3 goal = Vector3.zero;
-            // Up
-            if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
-            {
-                goal = transform.position + Vector3.forward;
-                transform.rotation = Quaternion.Euler(0, 0, 0);
-            }
-            // Left
-            else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
-            {
-                goal = transform.position + Vector3.left;
-                transform.rotation = Quaternion.Euler(0, -90, 0);
-            }
-            // Right
-            else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
-            {
-                goal = transform.position + Vector3.right;
-                transform.rotation = Quaternion.Euler(0, 90, 0);
-            }
-            // Down
-            else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
-            {
-                goal = transform.position + Vector3.back;
-                transform.rotation = Quaternion.Euler(0, 180, 0);
-            }
-            if (goal != Vector3.zero && goal.x > -playerBounds && goal.x < playerBounds)
-			{
-                AudioManager.Instance.Play("Player Jump");
-                transform.position = goal;
-            }
-        }
+        // Handle moving the player
+        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+            Move(transform.position + Vector3.forward, 0);
+        else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+            Move(transform.position + Vector3.left, -90);
+        else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+            Move(transform.position + Vector3.right, 90);
+        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+            Move(transform.position + Vector3.back, 180);
+    }
+
+	private void Move(Vector3 pos, float rot)
+    {
+        AudioManager.Instance.Play("Player Jump");
+        transform.position = pos;
+        transform.rotation = Quaternion.Euler(0, rot, 0);
     }
 
 	private void OnTriggerEnter(Collider other)
@@ -72,5 +58,7 @@ public class Player : MonoBehaviour
         //Destroy(gameObject);
         AudioManager.Instance.Play("Player Death");
         GameManager.Instance.GameOver();
+        Instantiate(deathParticles, transform.position, Quaternion.identity, GameManager.Instance.transform);
+        Destroy(gameObject);
 	}
 }

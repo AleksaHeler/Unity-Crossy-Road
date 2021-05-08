@@ -281,6 +281,7 @@ Transform:
   - {fileID: 6663595889927087399}
   - {fileID: 2419265952787930407}
   - {fileID: 4702594309993535513}
+  - {fileID: 197137085351566122}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -546,3 +547,65 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1001 &2404994031205297115
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 5078794519142683698}
+    m_Modifications:
+    - target: {fileID: 2583973779373994225, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+      propertyPath: m_RootOrder
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2583973779373994225, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.088
+      objectReference: {fileID: 0}
+    - target: {fileID: 2583973779373994225, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.456
+      objectReference: {fileID: 0}
+    - target: {fileID: 2583973779373994225, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.263
+      objectReference: {fileID: 0}
+    - target: {fileID: 2583973779373994225, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2583973779373994225, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2583973779373994225, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2583973779373994225, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2583973779373994225, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2583973779373994225, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 2583973779373994225, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 2583973779374207159, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+      propertyPath: m_Name
+      value: FX_TireSmoke
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+--- !u!4 &197137085351566122 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2583973779373994225, guid: 0c48277bd619f61418a2c9db1bc83273, type: 3}
+  m_PrefabInstance: {fileID: 2404994031205297115}
+  m_PrefabAsset: {fileID: 0}
