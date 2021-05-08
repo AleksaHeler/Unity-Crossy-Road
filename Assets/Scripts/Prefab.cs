@@ -8,9 +8,11 @@ public enum ObjectType
     road,
     water,
     vehicle,
-    tree
+    tree,
+    collectible
 }
 
+// Class used to describe tiles, cars, trees... that will be spawned in game
 [System.Serializable]
 public class Prefab
 {

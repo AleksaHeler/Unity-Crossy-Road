@@ -20,11 +20,11 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  m_AmbientSkyColor: {r: 0.8113208, g: 0.602065, b: 0.41714135, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 0
+  m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
   m_HaloStrength: 0.5
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18154848, g: 0.22718932, b: 0.30740675, a: 1}
+  m_IndirectSpecularColor: {r: 0.17893668, g: 0.2240549, b: 0.30589956, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 4f720d028835cd44e8767661baf42553, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -209,13 +209,61 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 410988068}
-  m_LocalRotation: {x: 0.27059805, y: 0.6532815, z: -0.27059805, w: 0.6532815}
+  m_LocalRotation: {x: 0.32650557, y: 0.6272114, z: -0.32650557, w: 0.6272114}
   m_LocalPosition: {x: -50, y: 10, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 45, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 55, y: 90, z: 0}
+--- !u!1 &532876444
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 532876445}
+  - component: {fileID: 532876446}
+  m_Layer: 6
+  m_Name: PostProcessVolume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &532876445
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532876444}
+  m_LocalRotation: {x: -0.41619772, y: 0.15737876, z: -0.073386915, w: 0.89253896}
+  m_LocalPosition: {x: -1.6651909, y: -1.7620263, z: 6.3539286}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1645023704}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &532876446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 532876444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9a305e18de0c04dbd257a21cd47087, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sharedProfile: {fileID: 11400000, guid: 3a4b92171f1a35d46ab5573676b615b2, type: 2}
+  isGlobal: 1
+  blendDistance: 0
+  weight: 1
+  priority: 0
 --- !u!1 &606372301
 GameObject:
   m_ObjectHideFlags: 0
@@ -245,21 +293,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d947dc336fc1a3e4e914011736bd6b04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useSpecifiedSeed: 1
-  seed: 0
+  generateNLanes: 100
+  useSpecifiedSeed: 0
+  seed: 3
+  obstacleFrequency: 0.1
+  vehicleFrequency: 0.2
+  logFrequency: 0.1
+  collectibleFrequency: 0.08
+  laneWidth: 10
+  minSpeed: 0.9
+  maxSpeed: 3
+  playerMaxMove: 5
   prefabs:
   - name: Grass
     type: 0
-    gameObject: {fileID: 100002, guid: 2d3f540d2e0d6c043811b6ee062a2e66, type: 3}
+    gameObject: {fileID: 8017905568105819568, guid: 172792250fbef6042be193a411dde681, type: 3}
   - name: Road
     type: 1
-    gameObject: {fileID: 100002, guid: d85ff23cc0581754692c9166f1be2ec2, type: 3}
+    gameObject: {fileID: 1870956003554361884, guid: a45ef37c72bae65428e15405e57fd830, type: 3}
   - name: Crossing
     type: 1
-    gameObject: {fileID: 100002, guid: 2f029fd7f8a0d694397cf399aa925e95, type: 3}
+    gameObject: {fileID: 1870956003554361884, guid: a45ef37c72bae65428e15405e57fd830, type: 3}
   - name: Water
     type: 2
-    gameObject: {fileID: 100002, guid: 26a791ed5681ecf44998cf6a16241a67, type: 3}
+    gameObject: {fileID: 6253829654345895991, guid: cd434c5a9e28d6d489816ac087c5572c, type: 3}
   - name: Tree blocks
     type: 4
     gameObject: {fileID: 919132149155446097, guid: 1fe66dfd92e8d9d4085d45f13ced3f43, type: 3}
@@ -293,6 +350,12 @@ MonoBehaviour:
   - name: Vehicle van
     type: 3
     gameObject: {fileID: 919132149155446097, guid: 0d0ca5349413c2a40881e9128955ab9b, type: 3}
+  - name: Log
+    type: 3
+    gameObject: {fileID: 2361598001334984834, guid: 55d7520825048e644992b99c0552e8c3, type: 3}
+  - name: Coin
+    type: 5
+    gameObject: {fileID: 919132149155446097, guid: 867172acb88d30b44b46911f72fcadc9, type: 3}
 --- !u!4 &606372303
 Transform:
   m_ObjectHideFlags: 0
@@ -320,7 +383,8 @@ GameObject:
   - component: {fileID: 1645023702}
   - component: {fileID: 1645023705}
   - component: {fileID: 1645023706}
-  m_Layer: 0
+  - component: {fileID: 1645023707}
+  m_Layer: 6
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -388,7 +452,8 @@ Transform:
   m_LocalRotation: {x: 0.41619772, y: -0.15737876, z: 0.073386915, w: 0.89253896}
   m_LocalPosition: {x: 2.5, y: 6, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 532876445}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -20, z: 0}
@@ -417,3 +482,63 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
+--- !u!114 &1645023707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1645023701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 948f4100a11a5c24981795d21301da5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volumeTrigger: {fileID: 1645023704}
+  volumeLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  stopNaNPropagation: 1
+  finalBlitToCameraTarget: 0
+  antialiasingMode: 3
+  temporalAntialiasing:
+    jitterSpread: 1
+    sharpness: 0.25
+    stationaryBlending: 0.95
+    motionBlending: 0.85
+  subpixelMorphologicalAntialiasing:
+    quality: 2
+  fastApproximateAntialiasing:
+    fastMode: 0
+    keepAlpha: 0
+  fog:
+    enabled: 1
+    excludeSkybox: 1
+  debugLayer:
+    lightMeter:
+      width: 512
+      height: 256
+      showCurves: 1
+    histogram:
+      width: 512
+      height: 256
+      channel: 3
+    waveform:
+      exposure: 0.12
+      height: 256
+    vectorscope:
+      size: 256
+      exposure: 0.12
+    overlaySettings:
+      linearDepth: 0
+      motionColorIntensity: 4
+      motionGridSize: 64
+      colorBlindnessType: 0
+      colorBlindnessStrength: 1
+  m_Resources: {fileID: 11400000, guid: d82512f9c8e5d4a4d938b575d47f88d4, type: 2}
+  m_ShowToolkit: 1
+  m_ShowCustomSorter: 1
+  breakBeforeColorGrading: 0
+  m_BeforeTransparentBundles: []
+  m_BeforeStackBundles: []
+  m_AfterStackBundles: []

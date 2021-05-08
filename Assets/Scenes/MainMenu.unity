@@ -547,21 +547,21 @@ MonoBehaviour:
     isPlaying: 0
   - name: Car Noise
     clip: {fileID: 8300000, guid: 029721a8e9e1e754994297b1cf0626c1, type: 3}
-    volume: 1
-    pitch: 1
+    volume: 0.8
+    pitch: 1.2
     loop: 1
     source: {fileID: 0}
     isPlaying: 0
   - name: Music
     clip: {fileID: 8300000, guid: c69c71371f792524a9babf9f4d1e3941, type: 3}
-    volume: 0.8
+    volume: 0.6
     pitch: 1
     loop: 1
     source: {fileID: 0}
     isPlaying: 0
   - name: Click
     clip: {fileID: 8300000, guid: 272deb4c32204d840b591d4b7894e2c9, type: 3}
-    volume: 0.8
+    volume: 0.6
     pitch: 1
     loop: 0
     source: {fileID: 0}

@@ -7,9 +7,23 @@ public class AudioManager : MonoBehaviour
     public Sound[] sounds;
     private bool muted = false;
 
+    // Singleton pattern
+    private static AudioManager _instance;
+    public static AudioManager Instance { get { return _instance; } }
+
     // Start is called before the first frame update
     void Awake()
     {
+        // Singleton pattern
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+
         // Mark this object as dont destroy on load so it persists trough scenes
         DontDestroyOnLoad(gameObject);
 
