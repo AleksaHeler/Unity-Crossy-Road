@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Rendering.PostProcessing;
 using UnityEngine;
 
 /* TODO: add smooth follow */
@@ -16,9 +17,9 @@ public class CameraFollow : MonoBehaviour
     [Range(0, 1)]
     public float smoothing = 0.5f;
 
-    private float orthographicSize = 3;
-    private float zoomedOrthographicSize = 2;
-    private float zoomT = 0.001f;
+    private float orthographicSize;
+    private float zoomedOrthographicSize ;
+    private float zoomT = 0.002f;
 
     private void Awake()
 	{
@@ -38,7 +39,7 @@ public class CameraFollow : MonoBehaviour
             offset = transform.position - target.position;
 
         orthographicSize = Camera.main.orthographicSize;
-        zoomedOrthographicSize = orthographicSize * 0.7f;
+        zoomedOrthographicSize = orthographicSize * 0.5f;
     }
 
     // Update is called once per frame
@@ -65,11 +66,19 @@ public class CameraFollow : MonoBehaviour
 	}
     
     IEnumerator SmoothZoomTowardsPlayer()
-	{
-        while(true) // TODO: set condition
+    {
+        PostProcessVolume postProcess = Camera.main.GetComponentInChildren<PostProcessVolume>();
+        float newVignetteIntensity = postProcess.profile.GetSetting<Vignette>().intensity.value * 1.2f;
+
+        bool condition = true;
+        while(condition) // TODO: set condition
         {
             // Lerp towards goal position (zooming and translating)
             Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, zoomedOrthographicSize, zoomT);
+
+            // Increase vignette post processing
+            float oldVignetteIntensity = postProcess.profile.GetSetting<Vignette>().intensity.value;
+            postProcess.profile.GetSetting<Vignette>().intensity.value = Mathf.Lerp(oldVignetteIntensity, newVignetteIntensity, zoomT);
 
             Vector3 curr = transform.position;
             Vector3 goal = lastTargetPos + offset + Vector3.down; // look a bit down
@@ -77,6 +86,14 @@ public class CameraFollow : MonoBehaviour
                 Mathf.Lerp(curr.x, goal.x, zoomT),
                 Mathf.Lerp(curr.y, goal.y, zoomT),
                 Mathf.Lerp(curr.z, goal.z, zoomT));
+
+            // When to end the loop
+            float diffMove = (curr - goal).magnitude;
+            float diffZoom = Mathf.Abs(Camera.main.orthographicSize - zoomedOrthographicSize);
+            float diffVignette = Mathf.Abs(Camera.main.orthographicSize - zoomedOrthographicSize);
+            if (diffZoom <= 0.1 && diffMove <= 0.1)
+                condition = false;
+
             transform.position = nextPos;
 
             yield return new WaitForEndOfFrame();

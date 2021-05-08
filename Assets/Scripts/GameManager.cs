@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
 	// Variables
 	public Prefab[] prefabs;											// Prefabs to spawn for tiles, cars, trees...
 	private GameObject environment;										// Put everything in one gameobject
-	private Dictionary<int, Lane> lanes = new Dictionary<int, Lane>();  // Keeping track of lanes (Lane class)
+	public Dictionary<int, Lane> lanes = new Dictionary<int, Lane>();  // Keeping track of lanes (Lane class)
 	public Dictionary<int, Lane> Lanes { get { return lanes; } }
 	private Player player;
 	private Vector3 prevPlayerPos;
@@ -202,19 +202,18 @@ public class GameManager : MonoBehaviour
 			// On water put logs at given frequency
 			if (laneType == LaneType.water && Random.Range(0.0f, 1.0f) < logFrequency && logPrevious <= 0)
 			{
-				int size = Random.Range(2, 4);
-				logPrevious = (int)size + 10;
-				GenerateLog(new Vector3(i, 0, lane), size, lanes[lane].direction, laneGameObject.transform);
+				logPrevious = 3;
+				GenerateLog(new Vector3(i, 0, lane), lanes[lane].direction, laneGameObject.transform);
 			}
 			else if (logPrevious > 0) logPrevious--;
 		}
 
 		// If the lane is road and no vehicles were added, add one here
 		if (lanes[lane].type == LaneType.road && lanes[lane].vehicles.Count == 0)
-			GenerateLog(new Vector3(0, 0, lane), Random.Range(2, 5), lanes[lane].direction, laneGameObject.transform);
+			GenerateLog(new Vector3(0, 0, lane), lanes[lane].direction, laneGameObject.transform);
 		// If the lane is water and no logs were added, add one here
 		if (lanes[lane].type == LaneType.water && lanes[lane].vehicles.Count == 0)
-			GenerateLog(new Vector3(0, 0, lane), Random.Range(2, 5), lanes[lane].direction, laneGameObject.transform);
+			GenerateLog(new Vector3(0, 0, lane), lanes[lane].direction, laneGameObject.transform);
 	} // End of GenerateLane(int lane)
 
 	public void GameOver()
@@ -225,6 +224,7 @@ public class GameManager : MonoBehaviour
 		// Notify other game components that it is game over
 		CameraFollow.Instance.GameOver();
 		UIController.Instance.GameOver();
+		Time.timeScale = 0.4f;
 	}
 
 	#region Helper functions
@@ -241,7 +241,7 @@ public class GameManager : MonoBehaviour
 		lanes[(int)pos.z].vehicles.Add(vehicle);
 	}
 
-	private void GenerateLog(Vector3 pos, float size, int dir, Transform parent)
+	private void GenerateLog(Vector3 pos, int dir, Transform parent)
 	{
 		// Get the prefab and position
 		GameObject logPrefab = prefabs[15].gameObject;
@@ -249,7 +249,7 @@ public class GameManager : MonoBehaviour
 		Vector3 direction;
 		// Spawn based on direction and speed
 		direction = dir < 0 ? Vector3.left : Vector3.right;
-		log.AddComponent<LogController>().SetValues(lanes[(int)pos.z].speed, direction, laneWidth, size);
+		log.AddComponent<LogController>().SetValues(lanes[(int)pos.z].speed, direction, laneWidth);
 		lanes[(int)pos.z].vehicles.Add(log);
 	}
 

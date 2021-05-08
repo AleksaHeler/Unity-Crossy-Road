@@ -2,18 +2,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Log extends Vehicle, only difference is added size variable
-// So it initiates with given size and inherits update function from Vehicle
-public class LogController : Vehicle
+public class LogController : MonoBehaviour
 {
-	public float size;
+	// Parameters
+	public Vector3 direction;
+	public float speed;
+	public float end;
 
-	public void SetValues(float _speed, Vector3 _direction, float _end, float _size)
+	public void SetValues(float _speed, Vector3 _direction, float _end)
 	{
 		speed = _speed;
 		direction = _direction;
 		end = _end;
-		size = _size;
-		transform.localScale = new Vector3(size, 0.2f, 0.8f);
+		transform.localScale = new Vector3(3, 0.2f, 0.8f);
+	}
+
+	private void Update()
+	{
+		// Move
+		transform.position += direction * Time.deltaTime * speed;
+
+		// Handle going off the screen
+		if (direction == Vector3.left && transform.position.x < -end)
+		{
+			Vector3 newPos = transform.position;
+			newPos.x = end;
+			transform.position = newPos;
+		}
+		else if (direction == Vector3.right && transform.position.x > end)
+		{
+			Vector3 newPos = transform.position;
+			newPos.x = -end;
+			transform.position = newPos;
+		}
+
 	}
 }

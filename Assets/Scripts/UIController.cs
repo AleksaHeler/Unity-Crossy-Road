@@ -12,6 +12,9 @@ public class UIController : MonoBehaviour
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI stepsText;
 
+    public Transform gameStatsScreen;
+    public Transform gameOverScreen;
+
     Player player;
 
 	private void Awake()
@@ -30,6 +33,9 @@ public class UIController : MonoBehaviour
         stepsText.text = "0";
 
         player = Player.Instance;
+
+        gameOverScreen.gameObject.SetActive(false);
+        gameStatsScreen.gameObject.SetActive(true);
     }
 
     // Update is called once per frame
@@ -43,7 +49,13 @@ public class UIController : MonoBehaviour
     }
 
     public void GameOver()
-	{
+    {
+        gameStatsScreen.gameObject.SetActive(false);
+        gameOverScreen.gameObject.SetActive(true);
+    }
 
+    public void QuitGame()
+	{
+        Application.Quit();
 	}
 }

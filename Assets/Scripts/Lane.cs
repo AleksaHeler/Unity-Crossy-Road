@@ -15,7 +15,7 @@ public class Lane
     public int direction;                       // Vehicles: left/right
     public float speed;                         // Speed of all vehicles on the lane
     public List<GameObject> tiles;              // All tiles placed in this lane
-    public List<GameObject> vehicles;           // All vehicles in this lane
+    public List<GameObject> vehicles;           // All vehicles in this lane (including logs)
     public List<GameObject> obstacles;          // All obstacles in this lane
     public List<GameObject> collectibles;       // All collectibles in this lane
     public Transform parent;                    // All entities in lane are child of this objecy
