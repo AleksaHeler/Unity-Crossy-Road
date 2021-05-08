@@ -30,8 +30,8 @@ public class CameraFollow : MonoBehaviour
             Vector3 goal = target.position + offset; //0-1 -> 0-0.2 inverse
             float t = 0.105f - (Mathf.Clamp01(smoothing) / 10f); // Transform 0-1 slider to 0.05-0.105 for interpolating
             Vector3 nextPos = new Vector3(
-                Mathf.Lerp(curr.x, goal.x, t),
-                Mathf.Lerp(curr.y, goal.y, t),
+                curr.x,
+                curr.y,
                 Mathf.Lerp(curr.z, goal.z, t));
             transform.position = nextPos;
         }

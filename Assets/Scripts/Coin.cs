@@ -22,4 +22,10 @@ public class Coin : MonoBehaviour
         transform.position = originalPos + Vector3.up * Mathf.Sin(Time.time * frequency) * amplitude;
         transform.Rotate(Vector3.up, rotSpeed * Time.deltaTime);
     }
+
+    public void PickUp()
+    {
+        AudioManager.Instance.Play("Click");
+        Destroy(gameObject);
+	}
 }

@@ -4,40 +4,69 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    private int _coins;
+    private int playerBounds;
+
+    // Getter for coins
+    public int Coins { get { return _coins; } }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        playerBounds = GameManager.Instance.playerBounds;
     }
 
     // Update is called once per frame
     void Update()
     {
-        // Up
-        if(Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+        if (Input.anyKeyDown)
         {
-            transform.position += Vector3.forward;
-        }
-        // Left
-        else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
-        {
-            transform.position += Vector3.left;
-        } 
-        // Right
-        else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
-        {
-            transform.position += Vector3.right;
-        } 
-        // Down
-        else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
-        {
-            transform.position += Vector3.back;
+            Vector3 goal = Vector3.zero;
+            // Up
+            if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+            {
+                goal = transform.position + Vector3.forward;
+            }
+            // Left
+            else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+            {
+                goal = transform.position + Vector3.left;
+            }
+            // Right
+            else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+            {
+                goal = transform.position + Vector3.right;
+            }
+            // Down
+            else if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+            {
+                goal = transform.position + Vector3.back;
+            }
+            if (goal != Vector3.zero && goal.x > -playerBounds && goal.x < playerBounds)
+			{
+                AudioManager.Instance.Play("Player Jump");
+                transform.position = goal;
+            }
         }
     }
 
 	private void OnTriggerEnter(Collider other)
 	{
-        Debug.Log("Collision: " + other.tag);
+        if(other.tag == "Collectible")
+		{
+            _coins++;
+            other.GetComponent<Coin>().PickUp();
+		}
+        else if(other.tag == "Vehicle")
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+	{
+        //Destroy(gameObject);
+        AudioManager.Instance.Play("Player Death");
+        GameManager.Instance.GameOver();
 	}
 }
