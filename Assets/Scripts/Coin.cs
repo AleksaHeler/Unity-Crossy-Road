@@ -18,6 +18,7 @@ public class Coin : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         // Move up and down and rotate
         transform.position = originalPos + Vector3.up * Mathf.Sin(Time.time * frequency) * amplitude;
         transform.Rotate(Vector3.up, rotSpeed * Time.deltaTime);

@@ -14,11 +14,12 @@ public class LogController : MonoBehaviour
 		speed = _speed;
 		direction = _direction;
 		end = _end;
-		transform.localScale = new Vector3(3, 0.2f, 0.8f);
+		transform.localScale = new Vector3(3, 0.15f, 0.8f);
 	}
 
 	private void Update()
 	{
+
 		// Move
 		transform.position += direction * Time.deltaTime * speed;
 

@@ -39,8 +39,16 @@ public class AudioManager : MonoBehaviour
         Play("Music");
     }
 
-	// Find the given audio source and play it
-	public void Play(string name)
+    // Find the given audio source and play it
+    public void SetVolume(string name, float volume)
+    {
+        Sound s = Array.Find(sounds, sound => sound.name == name);
+        if (s != null)
+            s.source.volume = volume;
+    }
+
+    // Find the given audio source and play it
+    public void Play(string name)
     {
         if (muted)
             return;
@@ -56,6 +64,14 @@ public class AudioManager : MonoBehaviour
         Sound s = Array.Find(sounds, sound => sound.name == name);
         if (s != null)
             s.source.Stop();
+    }
+
+    // Find the given audio source and stop it (for example music)
+    public void Pause(string name)
+    {
+        Sound s = Array.Find(sounds, sound => sound.name == name);
+        if (s != null)
+            s.source.Pause();
     }
 
     public void ToggleSound(bool enabled)

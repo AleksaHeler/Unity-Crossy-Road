@@ -11,10 +11,12 @@ public class MainMenu : MonoBehaviour
 	public float frequency = 1;
 	public Transform titleTransform;
 	private Vector3 originalPos;
+	public Transform deletePopup;
 
 	private void Start()
 	{
 		originalPos = titleTransform.position;
+		deletePopup.gameObject.SetActive(false);
 	}
 
 	private void Update() {
@@ -22,6 +24,11 @@ public class MainMenu : MonoBehaviour
 		if(titleTransform != null){
 			titleTransform.position = originalPos + 5 * amplitude * Vector3.up * Mathf.Sin(3 * Time.time * frequency);
 		}
+
+		if (Input.GetKeyDown(KeyCode.Space))
+			Play();
+		else if (Input.GetKeyDown(KeyCode.Escape))
+			QuitGame();
 	}
 
 	public void Play()
@@ -31,7 +38,16 @@ public class MainMenu : MonoBehaviour
 
 	public void QuitGame()
 	{
-		Debug.Log("Closing application!");
 		Application.Quit();
+	}
+
+	public void DeletePopup(bool enable)
+	{
+		deletePopup.gameObject.SetActive(enable);
+	}
+
+	public void DeleteSavedGame()
+	{
+		PlayerPrefs.DeleteAll();
 	}
 }

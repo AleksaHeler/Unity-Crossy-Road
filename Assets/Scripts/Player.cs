@@ -38,13 +38,17 @@ public class Player : MonoBehaviour
 	void Start()
     {
         playerBounds = GameManager.Instance.playerBounds;
+        _coins = PlayerPrefs.GetInt("Coins", 0);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (UIController.Instance.gamePaused)
+            return;
+
         // If we are on a log move along with it
-		if (logBound)
+        if (logBound)
 		{
             Vector3 pos = transform.position;
             transform.position = new Vector3(log.position.x + logOffset, pos.y, pos.z);
@@ -147,6 +151,7 @@ public class Player : MonoBehaviour
         if(other.tag == "Collectible")
 		{
             _coins++;
+            PlayerPrefs.SetInt("Coins", _coins);
             other.GetComponent<Coin>().PickUp();
 		}
         else if(other.tag == "Vehicle")
@@ -191,6 +196,5 @@ public class Player : MonoBehaviour
         AudioManager.Instance.Play("Player Death");
         GameManager.Instance.GameOver();
         Instantiate(deathParticles, transform.position, Quaternion.identity, GameManager.Instance.transform);
-        Destroy(gameObject);
 	}
 }

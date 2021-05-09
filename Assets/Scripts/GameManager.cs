@@ -31,18 +31,24 @@ public class GameManager : MonoBehaviour
 	public GameObject audioManagerPrefab;
 	[Header("Player")]
 	public GameObject playerPrefab;
-	[Header("Level parameters")]
+	[Space]
+	[Header("Level seed")]
 	public bool useSpecifiedSeed = false;
 	public int seed = 0;
+	[Header("Entity frequencies")]
 	public float obstacleFrequency = 0.2f;
 	public float vehicleFrequency = 0.2f;
 	public float logFrequency = 0.2f;
 	public float collectibleFrequency = 0.1f;
+	[Header("Lane settings")]
 	public int laneWidth = 10;
 	public int lanesInFrontOfPlayer = 20;		// How many lanes to prepare in front and behind player
 	public int lanesBehindOfPlayer = 10;
+	[Header("Speed settings")]
 	public float minSpeed = 0.7f;
 	public float maxSpeed = 2f;
+	public float speedIncreaseByLane = 0.05f;	// Further the player goes faster the traffic will be
+	[Header("Player settings")]
 	public int playerBounds = 5;				// how many tiles can player move left/right not to go off the screen
 
 	// Variables
@@ -52,6 +58,13 @@ public class GameManager : MonoBehaviour
 	public Dictionary<int, Lane> Lanes { get { return lanes; } }
 	private Player player;
 	private Vector3 prevPlayerPos;
+
+	[HideInInspector]
+	public int steps;
+	[HideInInspector]
+	public int highscore;
+	[HideInInspector]
+	public int coins;
 
 	// Start is called before the first frame update
 	void Awake()
@@ -141,7 +154,7 @@ public class GameManager : MonoBehaviour
 
 		// Set lane speed and direction
 		lanes[lane].direction = Random.Range(0, 100) > 50 ? -1 : 1;
-		lanes[lane].speed = Random.Range(minSpeed, maxSpeed);
+		lanes[lane].speed = Random.Range(minSpeed, maxSpeed) + speedIncreaseByLane * lane;
 
 		// Get the type of current lane
 		LaneType laneType = lanes[lane].type;
@@ -202,10 +215,10 @@ public class GameManager : MonoBehaviour
 			// On water put logs at given frequency
 			if (laneType == LaneType.water && Random.Range(0.0f, 1.0f) < logFrequency && logPrevious <= 0)
 			{
-				logPrevious = 3;
+				logPrevious = 5;
 				GenerateLog(new Vector3(i, 0, lane), lanes[lane].direction, laneGameObject.transform);
 			}
-			else if (logPrevious > 0) logPrevious--;
+			if(logPrevious > 0) logPrevious--;
 		}
 
 		// If the lane is road and no vehicles were added, add one here
@@ -218,6 +231,15 @@ public class GameManager : MonoBehaviour
 
 	public void GameOver()
 	{
+		// Mark final scores
+		steps = player.Steps;
+		highscore = PlayerPrefs.GetInt("Highscore", 0);
+		coins = player.Coins;
+		if(steps > highscore)
+		{
+			PlayerPrefs.SetInt("Highscore", steps);
+			UIController.Instance.isHighscore = true;
+		}
 		// Stop music and sounds
 		AudioManager.Instance.Stop("Music");
 		AudioManager.Instance.Stop("Car Noise");
@@ -225,6 +247,7 @@ public class GameManager : MonoBehaviour
 		CameraFollow.Instance.GameOver();
 		UIController.Instance.GameOver();
 		Time.timeScale = 0.4f;
+		Destroy(player.gameObject);
 	}
 
 	#region Helper functions

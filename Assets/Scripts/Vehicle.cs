@@ -19,6 +19,7 @@ public class Vehicle : MonoBehaviour
 
 	private void Update()
 	{
+
 		// Move
 		transform.position += direction * Time.deltaTime * speed;
 
