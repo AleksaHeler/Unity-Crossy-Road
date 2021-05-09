@@ -1,5 +1,5 @@
 # Crossy Road
-[Hours spent: 15]
+[Hours spent: 20]
 
 ## About
 This is a game similar to [Crossy Road](https://play.google.com/store/apps/details?id=com.yodo1.crossyroad&hl=en&gl=US) and [Frogger](https://en.wikipedia.org/wiki/Frogger) made for an internship application.
