@@ -2,14 +2,20 @@ using UnityEngine.Audio;
 using System;
 using UnityEngine;
 
+/// <summary>
+/// This class is responsible for all audio data and sources in whole game
+/// </summary>
 public class AudioManager : MonoBehaviour
 {
-    public Sound[] sounds;
-    private bool muted = false;
-
     // Singleton pattern
     private static AudioManager _instance;
     public static AudioManager Instance { get { return _instance; } }
+
+    [Tooltip("Sounds that will be accessed in game to be played")]
+    public Sound[] sounds;
+
+    // Keep track if the audio is muted
+    private bool muted = false;
 
     // Start is called before the first frame update
     void Awake()
@@ -36,10 +42,15 @@ public class AudioManager : MonoBehaviour
 
 	private void Start()
 	{
+        // Always play music
         Play("Music");
     }
 
-    // Find the given audio source and play it
+    /// <summary>
+    /// Set volume for given audio source. Doesnt matter if it is playing or not
+    /// </summary>
+    /// <param name="name">Clip name, internal use (not filename)</param>
+    /// <param name="volume">Float between 0 and 1</param>
     public void SetVolume(string name, float volume)
     {
         Sound s = Array.Find(sounds, sound => sound.name == name);
@@ -47,9 +58,13 @@ public class AudioManager : MonoBehaviour
             s.source.volume = volume;
     }
 
-    // Find the given audio source and play it
+    /// <summary>
+    /// Find the given audio source and play it
+    /// </summary>
+    /// <param name="name">Clip name, internal use (not filename)</param>
     public void Play(string name)
     {
+        // Dont play sounds if muted
         if (muted)
             return;
 
@@ -58,7 +73,10 @@ public class AudioManager : MonoBehaviour
             s.source.Play();
     }
 
-    // Find the given audio source and stop it (for example music)
+    /// <summary>
+    /// Find the given audio source and stop it (for example music)
+    /// </summary>
+    /// <param name="name">Clip name, internal use (not filename)</param>
     public void Stop(string name)
     {
         Sound s = Array.Find(sounds, sound => sound.name == name);
@@ -66,7 +84,10 @@ public class AudioManager : MonoBehaviour
             s.source.Stop();
     }
 
-    // Find the given audio source and stop it (for example music)
+    /// <summary>
+    /// Find the given audio source and pause it (for example car sounds)
+    /// </summary>
+    /// <param name="name">Clip name, internal use (not filename)</param>
     public void Pause(string name)
     {
         Sound s = Array.Find(sounds, sound => sound.name == name);
@@ -74,6 +95,10 @@ public class AudioManager : MonoBehaviour
             s.source.Pause();
     }
 
+    /// <summary>
+    /// Mutes or unmutes the audio manager and all sounds
+    /// </summary>
+    /// <param name="enabled">Wether the audio is enabled or not</param>
     public void ToggleSound(bool enabled)
 	{
         muted = !enabled;

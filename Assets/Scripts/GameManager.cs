@@ -2,31 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/*
- * Game manager things:
- *   - creates procedural level
- *     - First sets up a random seed, then one lane at a time generates the level
- *     - Generates X amount of lanes in front of the player and deletes X amount behind
- *     - Handles player going backwards (to start)
- *     - realised in lanes (safe, road, water)
- *     - initializes obstacles (vehicles and water)
- *     - initializes collectibles
- *   - initializes player
- *   - has getters for UI to use
- *   - saves highscore to local storage
- *   
- *   
- *   TODO: when placing coins first check if empty (no trees)
- */
-
-
+/// <summary>
+/// TODO: write gamemanager docs
+/// </summary>
 public class GameManager : MonoBehaviour
 {
 	// Singleton pattern
 	private static GameManager _instance;
 	public static GameManager Instance { get { return _instance; } }
 
-	// Parameters
+	#region Parameters
 	[Header("Temporary")]
 	public GameObject audioManagerPrefab;
 	[Header("Player")]
@@ -41,7 +26,8 @@ public class GameManager : MonoBehaviour
 	public float logFrequency = 0.2f;
 	public float collectibleFrequency = 0.1f;
 	[Header("Lane settings")]
-	public int laneWidth = 10;
+	public int laneWidth = 30;
+	public int vehicleEnd = 10;
 	public int lanesInFrontOfPlayer = 20;		// How many lanes to prepare in front and behind player
 	public int lanesBehindOfPlayer = 10;
 	[Header("Speed settings")]
@@ -65,6 +51,7 @@ public class GameManager : MonoBehaviour
 	public int highscore;
 	[HideInInspector]
 	public int coins;
+	#endregion
 
 	// Start is called before the first frame update
 	void Awake()
@@ -82,7 +69,11 @@ public class GameManager : MonoBehaviour
 		if (useSpecifiedSeed)
 			Random.InitState(seed);
 		else
-			Random.InitState((int)System.DateTime.Now.Ticks);
+		{
+			int _seed = (int)System.DateTime.Now.Ticks;
+			Debug.Log(_seed);
+			Random.InitState(_seed);
+		}
 
 		// Generate first lanes
 		for (int i = -lanesBehindOfPlayer + 1; i < lanesInFrontOfPlayer; i++) 
@@ -166,7 +157,7 @@ public class GameManager : MonoBehaviour
 
 		// Was there a vehicle spawned on prev X coord in iteration
 		// So cars wont be so close to each other
-		bool vehiclePrevious = false;
+		int vehiclePrevious = 0;
 		int logPrevious = 0;
 
 		// What tile to place
@@ -205,12 +196,12 @@ public class GameManager : MonoBehaviour
 			}
 
 			// On roads put cars at given frequency
-			if (laneType == LaneType.road && Random.Range(0, 100) < 100 * vehicleFrequency && !vehiclePrevious)
+			if (laneType == LaneType.road && Random.Range(0, 100) < 100 * vehicleFrequency && vehiclePrevious == 0)
 			{
-				vehiclePrevious = true; // Mark for next iteration not to have car (too close)
+				vehiclePrevious = 2; // Mark for next iteration not to have car (too close)
 				GenerateVehicle(new Vector3(i, 0.1f, lane), laneGameObject.transform);
 			}
-			else if (vehiclePrevious) vehiclePrevious = false;
+			if (vehiclePrevious > 0) vehiclePrevious--;
 
 			// On water put logs at given frequency
 			if (laneType == LaneType.water && Random.Range(0.0f, 1.0f) < logFrequency && logPrevious <= 0)
@@ -260,7 +251,7 @@ public class GameManager : MonoBehaviour
 		float angle = dir == Vector3.left ? -90 : 90;
 		// Instantiate and create the vehicle and add it to list to keep track of it
 		GameObject vehicle = Instantiate(prefab, pos, Quaternion.Euler(0, angle, 0), parent);
-		vehicle.AddComponent<Vehicle>().SetValues(lanes[(int)pos.z].speed,  dir, laneWidth);
+		vehicle.AddComponent<Vehicle>().SetValues(lanes[(int)pos.z].speed, dir, vehicleEnd);
 		lanes[(int)pos.z].vehicles.Add(vehicle);
 	}
 
@@ -272,7 +263,7 @@ public class GameManager : MonoBehaviour
 		Vector3 direction;
 		// Spawn based on direction and speed
 		direction = dir < 0 ? Vector3.left : Vector3.right;
-		log.AddComponent<LogController>().SetValues(lanes[(int)pos.z].speed, direction, laneWidth);
+		log.AddComponent<Vehicle>().SetValues(lanes[(int)pos.z].speed, direction, vehicleEnd);
 		lanes[(int)pos.z].vehicles.Add(log);
 	}
 

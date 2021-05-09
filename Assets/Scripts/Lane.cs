@@ -9,6 +9,9 @@ public enum LaneType
     water = 2
 }
 
+/// <summary>
+/// Class describing a lane and containing all objects in it in Lists of GameObjects
+/// </summary>
 public class Lane
 {
     public LaneType type;                       // safe, road, water

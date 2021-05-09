@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// TODO: write player docs
+/// </summary>
 public class Player : MonoBehaviour
 {
     // Singleton pattern

@@ -12,7 +12,9 @@ public enum ObjectType
     collectible
 }
 
-// Class used to describe tiles, cars, trees... that will be spawned in game
+/// <summary>
+/// Class used to describe tiles, cars, trees... that will be spawned in game
+/// </summary>
 [System.Serializable]
 public class Prefab
 {
