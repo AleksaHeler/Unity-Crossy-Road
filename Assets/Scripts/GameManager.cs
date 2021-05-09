@@ -71,7 +71,7 @@ public class GameManager : MonoBehaviour
 		else
 		{
 			int _seed = (int)System.DateTime.Now.Ticks;
-			Debug.Log(_seed);
+			Debug.Log("Level seed: " + _seed);
 			Random.InitState(_seed);
 		}
 
@@ -155,11 +155,6 @@ public class GameManager : MonoBehaviour
 		laneGameObject.transform.parent = environment.transform;
 		lanes[lane].parent = laneGameObject.transform;
 
-		// Was there a vehicle spawned on prev X coord in iteration
-		// So cars wont be so close to each other
-		int vehiclePrevious = 0;
-		int logPrevious = 0;
-
 		// What tile to place
 		GameObject tile = null;
 		switch (laneType)
@@ -196,20 +191,12 @@ public class GameManager : MonoBehaviour
 			}
 
 			// On roads put cars at given frequency
-			if (laneType == LaneType.road && Random.Range(0, 100) < 100 * vehicleFrequency && vehiclePrevious == 0)
-			{
-				vehiclePrevious = 2; // Mark for next iteration not to have car (too close)
+			if (laneType == LaneType.road && Random.Range(0f, 1f) < vehicleFrequency)
 				GenerateVehicle(new Vector3(i, 0.1f, lane), laneGameObject.transform);
-			}
-			if (vehiclePrevious > 0) vehiclePrevious--;
 
 			// On water put logs at given frequency
-			if (laneType == LaneType.water && Random.Range(0.0f, 1.0f) < logFrequency && logPrevious <= 0)
-			{
-				logPrevious = 5;
+			if (laneType == LaneType.water && Random.Range(0.0f, 1.0f) < logFrequency)
 				GenerateLog(new Vector3(i, 0, lane), lanes[lane].direction, laneGameObject.transform);
-			}
-			if(logPrevious > 0) logPrevious--;
 		}
 
 		// If the lane is road and no vehicles were added, add one here
@@ -218,6 +205,23 @@ public class GameManager : MonoBehaviour
 		// If the lane is water and no logs were added, add one here
 		if (lanes[lane].type == LaneType.water && lanes[lane].vehicles.Count == 0)
 			GenerateLog(new Vector3(0, 0, lane), lanes[lane].direction, laneGameObject.transform);
+
+		if (lanes[lane].type == LaneType.road)
+		{
+			// Remove cars that are too close to each other (inefficient but not many items and not every frame)
+			foreach (GameObject o1 in lanes[lane].vehicles)
+			{
+				foreach (GameObject o2 in lanes[lane].vehicles)
+				{
+					if (o1 == o2)
+						continue;
+					if (Mathf.Abs(Mathf.Abs(o1.transform.position.x) - Mathf.Abs(o2.transform.position.x)) <= 1.1f)
+					{
+						Destroy(o2);
+					}
+				}
+			}
+		}
 	} // End of GenerateLane(int lane)
 
 	public void GameOver()
