@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// TODO: write gamemanager docs
+/// This script is responsible for level generation and spawning player inside the game. 
+/// It also handles game over after player calls function GameManager.Instance.GameOver()
 /// </summary>
 public class GameManager : MonoBehaviour
 {
@@ -12,41 +13,42 @@ public class GameManager : MonoBehaviour
 	public static GameManager Instance { get { return _instance; } }
 
 	#region Parameters
-	[Header("Temporary")]
-	public GameObject audioManagerPrefab;
 	[Header("Player")]
 	public GameObject playerPrefab;
 	[Space]
 	[Header("Level seed")]
 	public bool useSpecifiedSeed = false;
-	public int seed = 0;
+	public int seed = 42;
 	[Header("Entity frequencies")]
-	public float obstacleFrequency = 0.2f;
-	public float vehicleFrequency = 0.2f;
-	public float logFrequency = 0.2f;
-	public float collectibleFrequency = 0.1f;
+	public float obstacleFrequency = 0.15f;
+	public float vehicleFrequency = 0.3f;
+	public float logFrequency = 0.15f;
+	public float collectibleFrequency = 0.08f;
 	[Header("Lane settings")]
 	public int laneWidth = 30;
-	public int vehicleEnd = 10;
-	public int lanesInFrontOfPlayer = 20;		// How many lanes to prepare in front and behind player
+	public int vehicleEnd = 22;
+	public int lanesInFrontOfPlayer = 20;       // How many lanes to prepare in front and behind player
 	public int lanesBehindOfPlayer = 10;
 	[Header("Speed settings")]
-	public float minSpeed = 0.7f;
-	public float maxSpeed = 2f;
-	public float speedIncreaseByLane = 0.05f;	// Further the player goes faster the traffic will be
+	public float minSpeed = 1f;
+	public float maxSpeed = 3f;
+	public float speedIncreaseByLane = 0.05f;   // Further the player goes faster the traffic will be
 	[Header("Player settings")]
-	public int playerBounds = 5;				// how many tiles can player move left/right not to go off the screen
+	public int playerBounds = 6;                // how many tiles can player move left/right not to go off the screen
+	[Header("Sound settings")]
+	public GameObject audioManagerPrefab;       // Used only for debugging so we can start from the game scene
 
 	// Variables
-	public Prefab[] prefabs;											// Prefabs to spawn for tiles, cars, trees...
-	private GameObject environment;										// Put everything in one gameobject
-	public Dictionary<int, Lane> lanes = new Dictionary<int, Lane>();  // Keeping track of lanes (Lane class)
-	public Dictionary<int, Lane> Lanes { get { return lanes; } }
+	[Header("Game objects")]
+	[Tooltip("Prefabs to spawn for tiles, cars, trees...")]
+	public List<Prefab> prefabs;                                        // Prefabs to spawn for tiles, cars, trees...
+	private GameObject environment;                                     // Put everything in one gameobject
+	public Dictionary<int, Lane> lanes = new Dictionary<int, Lane>();   // Keeping track of lanes (Lane class)
 	private Player player;
 	private Vector3 prevPlayerPos;
 
 	[HideInInspector]
-	public int steps;
+	public int steps;													// Keep track of player stats (game over screen)
 	[HideInInspector]
 	public int highscore;
 	[HideInInspector]
@@ -76,7 +78,7 @@ public class GameManager : MonoBehaviour
 		}
 
 		// Generate first lanes
-		for (int i = -lanesBehindOfPlayer + 1; i < lanesInFrontOfPlayer; i++) 
+		for (int i = -lanesBehindOfPlayer + 1; i < lanesInFrontOfPlayer; i++)
 		{
 			GenerateLane(i);
 		}
@@ -144,7 +146,7 @@ public class GameManager : MonoBehaviour
 			lanes.Add(lane, new Lane((LaneType)Random.Range(0, 3)));
 
 		// Set lane speed and direction
-		lanes[lane].direction = Random.Range(0, 100) > 50 ? -1 : 1;
+		lanes[lane].direction = Random.Range(0f, 1f) > .5f ? -1 : 1;
 		lanes[lane].speed = Random.Range(minSpeed, maxSpeed) + speedIncreaseByLane * lane;
 
 		// Get the type of current lane
@@ -155,73 +157,70 @@ public class GameManager : MonoBehaviour
 		laneGameObject.transform.parent = environment.transform;
 		lanes[lane].parent = laneGameObject.transform;
 
-		// What tile to place
-		GameObject tile = null;
-		switch (laneType)
+		// Find the gameobject of the right tile and place it
+		foreach (Prefab p in prefabs)
 		{
-			case LaneType.safe:
-				tile = prefabs[0].gameObject;
+			if (p.name.Equals(laneType.ToString()))
+			{
+				lanes[lane].ground = Instantiate(p.gameObject, new Vector3(0, 0, lane), Quaternion.identity, laneGameObject.transform);
 				break;
-			case LaneType.road:
-				tile = prefabs[1].gameObject;
-				break;
-			case LaneType.water:
-				tile = prefabs[3].gameObject;
-				break;
-			default:
-				break;
+			}
 		}
 
-		// Go trough the lane and place tiles
-		for (int i = -laneWidth; i < laneWidth; i++)
+		// Go trough the lane and generate items/vehicles
+		for (int i = -vehicleEnd / 2 + 1; i < vehicleEnd / 2 ; i++)
 		{
-			// If we successfuly selected a tile prefab, then spawn it
-			if (tile != null)
-				lanes[lane].tiles.Add(Instantiate(tile, new Vector3(i, 0, lane), Quaternion.identity, laneGameObject.transform));
-
-			// Do this if the lane is 'safe'
-			if (laneType == LaneType.safe)
-			{
+			// On grass put trees and coins at given frequency
+			if (laneType == LaneType.Grass)
 				// On random chance (and if coordinates arent 0,0 - start coordinates)
-				if (Random.Range(0f, 1f) < obstacleFrequency && lane != 0 && i != 0)
+				if (Random.Range(0f, 1f) < obstacleFrequency && lane != 0)
 					GenerateTree(new Vector3(i, 0, lane), laneGameObject.transform);
 				// If we are on a safe lane inside player move zone and havent placed an obstacle, then place coins randomly
 				else if (i > -playerBounds && i < playerBounds && lane > 0 && Random.Range(0f, 1f) < collectibleFrequency)
 					GenerateCoin(new Vector3(i, 0.5f, lane), laneGameObject.transform);
-			}
 
 			// On roads put cars at given frequency
-			if (laneType == LaneType.road && Random.Range(0f, 1f) < vehicleFrequency)
+			if (laneType == LaneType.Road && Random.Range(0f, 1f) < vehicleFrequency)
 				GenerateVehicle(new Vector3(i, 0.1f, lane), laneGameObject.transform);
 
 			// On water put logs at given frequency
-			if (laneType == LaneType.water && Random.Range(0.0f, 1.0f) < logFrequency)
-				GenerateLog(new Vector3(i, 0, lane), lanes[lane].direction, laneGameObject.transform);
+			if (laneType == LaneType.Water && Random.Range(0.0f, 1.0f) < logFrequency)
+				GenerateLog(new Vector3(i, 0, lane), laneGameObject.transform);
 		}
 
-		// If the lane is road and no vehicles were added, add one here
-		if (lanes[lane].type == LaneType.road && lanes[lane].vehicles.Count == 0)
-			GenerateLog(new Vector3(0, 0, lane), lanes[lane].direction, laneGameObject.transform);
-		// If the lane is water and no logs were added, add one here
-		if (lanes[lane].type == LaneType.water && lanes[lane].vehicles.Count == 0)
-			GenerateLog(new Vector3(0, 0, lane), lanes[lane].direction, laneGameObject.transform);
-
-		if (lanes[lane].type == LaneType.road)
+		// Remove cars/logs that are too close to each other (inefficient but not many items and not every frame)
+		if (lanes[lane].type == LaneType.Road || lanes[lane].type == LaneType.Water)
 		{
-			// Remove cars that are too close to each other (inefficient but not many items and not every frame)
-			foreach (GameObject o1 in lanes[lane].vehicles)
+			// Find all objects that need to be removed and remove them
+			List<GameObject> objToRemove = new List<GameObject>();
+			for (int i = 0; i < lanes[lane].vehicles.Count; i++)
 			{
-				foreach (GameObject o2 in lanes[lane].vehicles)
+				for (int j = i + 1; j < lanes[lane].vehicles.Count; j++)
 				{
-					if (o1 == o2)
-						continue;
-					if (Mathf.Abs(Mathf.Abs(o1.transform.position.x) - Mathf.Abs(o2.transform.position.x)) <= 1.1f)
+					GameObject o1 = lanes[lane].vehicles[i];
+					GameObject o2 = lanes[lane].vehicles[j];
+					float dist = Vector3.Distance(o1.transform.position, o2.transform.position);
+					if (lanes[lane].type == LaneType.Water && dist <= 3.5f)
 					{
+						objToRemove.Add(o2);
+						Destroy(o2);
+					}
+					else if (lanes[lane].type == LaneType.Road && dist <= 1.5f)
+					{
+						objToRemove.Add(o2);
 						Destroy(o2);
 					}
 				}
 			}
+			foreach(GameObject o in objToRemove)
+				lanes[lane].vehicles.Remove(o);
 		}
+
+		// If the lane is road/water and no vehicles/logs were added, add one here
+		if (lanes[lane].type == LaneType.Road && lanes[lane].vehicles.Count == 0)
+			GenerateVehicle(new Vector3(0, 0, lane), laneGameObject.transform);
+		if (lanes[lane].type == LaneType.Water && lanes[lane].vehicles.Count == 0)
+			GenerateLog(new Vector3(0, 0, lane), laneGameObject.transform);
 	} // End of GenerateLane(int lane)
 
 	public void GameOver()
@@ -230,7 +229,7 @@ public class GameManager : MonoBehaviour
 		steps = player.Steps;
 		highscore = PlayerPrefs.GetInt("Highscore", 0);
 		coins = player.Coins;
-		if(steps > highscore)
+		if (steps > highscore)
 		{
 			PlayerPrefs.SetInt("Highscore", steps);
 			UIController.Instance.isHighscore = true;
@@ -248,33 +247,49 @@ public class GameManager : MonoBehaviour
 	#region Helper functions
 	private void GenerateVehicle(Vector3 pos, Transform parent)
 	{
-		// Get the prefab
-		GameObject prefab = prefabs[Random.Range(9, 15)].gameObject; // 8 is delivery which i dont want to use
-		// Calculate movement direction and rotation for the car
-		Vector3 dir = lanes[(int)pos.z].direction < 0 ? Vector3.left : Vector3.right;
-		float angle = dir == Vector3.left ? -90 : 90;
+		// Get the prefab. First get all vehicle prefabs then select randomly
+		List<Prefab> vehiclePrefabs = new List<Prefab>();
+		foreach(Prefab p in prefabs)
+		{
+			if (p.type == ObjectType.vehicle)
+				vehiclePrefabs.Add(p);
+		}
+		if (vehiclePrefabs.Count == 0)
+			return;
+		GameObject prefab = vehiclePrefabs[Random.Range(0, vehiclePrefabs.Count)].gameObject;
+		float angle = lanes[(int)pos.z].direction < 0 ? -90 : 90;	// Calculate movement direction and rotation for the car
 		// Instantiate and create the vehicle and add it to list to keep track of it
 		GameObject vehicle = Instantiate(prefab, pos, Quaternion.Euler(0, angle, 0), parent);
-		vehicle.AddComponent<Vehicle>().SetValues(lanes[(int)pos.z].speed, dir, vehicleEnd);
+		Vector3 dir = lanes[(int)pos.z].direction > 0 ? Vector3.right : Vector3.left;
+		vehicle.AddComponent<Vehicle>().SetValues(lanes[(int)pos.z].speed, dir, vehicleEnd/2);
 		lanes[(int)pos.z].vehicles.Add(vehicle);
 	}
 
-	private void GenerateLog(Vector3 pos, int dir, Transform parent)
+	private void GenerateLog(Vector3 pos, Transform parent)
 	{
-		// Get the prefab and position
-		GameObject logPrefab = prefabs[15].gameObject;
+		// Get the prefab and instantiate it
+		GameObject logPrefab = null;
+		foreach (Prefab p in prefabs)
+			if (p.type == ObjectType.log)
+				logPrefab = p.gameObject;
+		if (logPrefab == null)
+			return;
 		GameObject log = Instantiate(logPrefab, pos, Quaternion.identity, parent);
-		Vector3 direction;
 		// Spawn based on direction and speed
-		direction = dir < 0 ? Vector3.left : Vector3.right;
-		log.AddComponent<Vehicle>().SetValues(lanes[(int)pos.z].speed, direction, vehicleEnd);
+		Vector3 direction = lanes[(int)pos.z].direction > 0 ? Vector3.right : Vector3.left;
+		log.AddComponent<Vehicle>().SetValues(lanes[(int)pos.z].speed, direction, vehicleEnd/2);
 		lanes[(int)pos.z].vehicles.Add(log);
 	}
 
 	private void GenerateCoin(Vector3 pos, Transform parent)
 	{
 		// Get the prefab and instantiate it
-		GameObject prefab = prefabs[16].gameObject;
+		GameObject prefab = null;
+		foreach (Prefab p in prefabs)
+			if (p.type == ObjectType.collectible)
+				prefab = p.gameObject;
+		if (prefab == null)
+			return;
 		GameObject coin = Instantiate(prefab, pos, Quaternion.identity, parent);
 		// Add coin animation script to it and add to lane collectibles list
 		lanes[(int)pos.z].collectibles.Add(coin);
@@ -282,8 +297,16 @@ public class GameManager : MonoBehaviour
 
 	private void GenerateTree(Vector3 pos, Transform parent)
 	{
-		// Get the prefab and instantiate it in right place
-		GameObject prefab = prefabs[Random.Range(4, 8)].gameObject;
+		// Get the prefab. First get all vehicle prefabs then select randomly
+		List<Prefab> treePrefabs = new List<Prefab>();
+		foreach (Prefab p in prefabs)
+		{
+			if (p.type == ObjectType.tree)
+				treePrefabs.Add(p);
+		}
+		if (treePrefabs.Count == 0)
+			return;
+		GameObject prefab = treePrefabs[Random.Range(0, treePrefabs.Count)].gameObject;
 		lanes[(int)pos.z].obstacles.Add(Instantiate(prefab, pos, Quaternion.identity, parent));
 	}
 	#endregion

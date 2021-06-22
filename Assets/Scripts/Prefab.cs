@@ -8,6 +8,7 @@ public enum ObjectType
     road,
     water,
     vehicle,
+    log,
     tree,
     collectible
 }

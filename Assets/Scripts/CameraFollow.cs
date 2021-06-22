@@ -46,7 +46,7 @@ public class CameraFollow : MonoBehaviour
     {
         // If target is not defined find player object (has "Player" tag)
         if (target == null)
-            target = GameObject.FindGameObjectWithTag("Player").transform;
+            target = Player.Instance.transform;
 
         // If target is defined set offset from it
         if(target != null)

@@ -1239,46 +1239,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d947dc336fc1a3e4e914011736bd6b04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioManagerPrefab: {fileID: 1827116994063865457, guid: 1696b54dd0aaa074cbe38668321ed83a, type: 3}
   playerPrefab: {fileID: 7930306765432909983, guid: 1183999c3c5421e428cfb4832631eeca, type: 3}
   useSpecifiedSeed: 0
   seed: 42
-  obstacleFrequency: 0.1
-  vehicleFrequency: 0.2
-  logFrequency: 0.1
+  obstacleFrequency: 0.15
+  vehicleFrequency: 0.3
+  logFrequency: 0.15
   collectibleFrequency: 0.08
-  laneWidth: 15
-  vehicleEnd: 11
+  laneWidth: 30
+  vehicleEnd: 22
   lanesInFrontOfPlayer: 20
   lanesBehindOfPlayer: 10
   minSpeed: 1
   maxSpeed: 3
   speedIncreaseByLane: 0.05
   playerBounds: 6
+  audioManagerPrefab: {fileID: 1827116994063865457, guid: 1696b54dd0aaa074cbe38668321ed83a, type: 3}
   prefabs:
   - name: Grass
     type: 0
-    gameObject: {fileID: 8017905568105819568, guid: 172792250fbef6042be193a411dde681, type: 3}
+    gameObject: {fileID: 8053550492466048894, guid: 23fa9dc0beff8084f82eb70bf2ab11df, type: 3}
   - name: Road
     type: 1
-    gameObject: {fileID: 1870956003554361884, guid: a45ef37c72bae65428e15405e57fd830, type: 3}
-  - name: Crossing
-    type: 1
-    gameObject: {fileID: 1870956003554361884, guid: a45ef37c72bae65428e15405e57fd830, type: 3}
+    gameObject: {fileID: 6769080354366285591, guid: 15d04d5ede51cc94f87d781ac026c2ac, type: 3}
   - name: Water
     type: 2
-    gameObject: {fileID: 6253829654345895991, guid: cd434c5a9e28d6d489816ac087c5572c, type: 3}
+    gameObject: {fileID: 2458598099565403489, guid: 0142c30b6538ab54696fefce758dc80e, type: 3}
   - name: Tree blocks
-    type: 4
+    type: 5
     gameObject: {fileID: 919132149155446097, guid: 1fe66dfd92e8d9d4085d45f13ced3f43, type: 3}
   - name: Tree default
-    type: 4
+    type: 5
     gameObject: {fileID: 919132149155446097, guid: 195721d8b7666ab489e23e8f3410e323, type: 3}
   - name: Tree detailed
-    type: 4
+    type: 5
     gameObject: {fileID: 919132149155446097, guid: d88112a8a76c0a3458660952b0a37738, type: 3}
   - name: Tree pine
-    type: 4
+    type: 5
     gameObject: {fileID: 919132149155446097, guid: 3216cac75bc2e254cb4137efabd538ee, type: 3}
   - name: Vehicle delivery
     type: 3
@@ -1302,10 +1299,10 @@ MonoBehaviour:
     type: 3
     gameObject: {fileID: 9053035244830023564, guid: ef4d2fe41539f0e46b543544ff70acee, type: 3}
   - name: Log
-    type: 3
+    type: 4
     gameObject: {fileID: 1820096912689399974, guid: 28646c41f81b3ad4da2542566de9dcc0, type: 3}
   - name: Coin
-    type: 5
+    type: 6
     gameObject: {fileID: 8523427090094130207, guid: b3fbeda3a23d3fc48b48559f9f499b2d, type: 3}
   steps: 0
   highscore: 0

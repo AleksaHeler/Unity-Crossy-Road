@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// TODO: write player docs
+/// Class controlling player behaviour. Gets input data and moves, detects game over, collects coins
 /// </summary>
 public class Player : MonoBehaviour
 {
@@ -11,20 +11,21 @@ public class Player : MonoBehaviour
     private static Player _instance;
     public static Player Instance { get { return _instance; } }
 
+    // Internal values for stats
     private int _coins;
     private int _steps;
     private int playerBounds;
 
-    // Water log stuff
-    private bool logBound;      // If player is standing on a log
-    private Transform log;      // Position of the log
-    private float logOffset;  // Offset of current position on the log
+    // Stuff for 'riding' logs
+    private bool logBound;              // If player is standing on a log
+    private Transform mountedLog;       // Position of the log
+    private float posOffsetOnLog;       // Offset of current position on the log
 
     [Header("Particles")]
     public GameObject deathParticles;
     public ParticleSystem moveParticles;
 
-    // Getter for coins
+    // Exposing stats as read-only
     public int Coins { get { return _coins; } }
     public int Steps { get { return _steps; } }
 
@@ -37,31 +38,31 @@ public class Player : MonoBehaviour
             _instance = this;
     }
 
-	// Start is called before the first frame update
 	void Start()
     {
+        // Sets max player movement on X axis and gets saved coins from player prefs
         playerBounds = GameManager.Instance.playerBounds;
         _coins = PlayerPrefs.GetInt("Coins", 0);
     }
 
-    // Update is called once per frame
     void Update()
     {
+        // If game is paused dont move
         if (UIController.Instance.gamePaused)
             return;
 
-        // If we are on a log move along with it
+        // If we are on a log move along with it (only on X axis)
         if (logBound)
 		{
             Vector3 pos = transform.position;
-            transform.position = new Vector3(log.position.x + logOffset, pos.y, pos.z);
-            if (log.position.x + logOffset < -playerBounds || log.position.x + logOffset > playerBounds)
+            transform.position = new Vector3(mountedLog.position.x + posOffsetOnLog, pos.y, pos.z);
+            if (mountedLog.position.x + posOffsetOnLog < -playerBounds || mountedLog.position.x + posOffsetOnLog > playerBounds)
                 Die();
 		}
 
         // Handle moving the player
         if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
-            Move(transform.position + Vector3.forward, 0);
+            Move(transform.position + Vector3.forward, 0);  // Params: new pos, rotation
         else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
             Move(transform.position + Vector3.left, -90);
         else if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
@@ -70,25 +71,27 @@ public class Player : MonoBehaviour
             Move(transform.position + Vector3.back, 180);
     }
 
+    /// <summary>
+    /// Move the player to given position and face him in given rotation
+    /// </summary>
+    /// <param name="pos">Position in world space</param>
+    /// <param name="rot">Rotation in global space (not relative)</param>
 	private void Move(Vector3 pos, float rot)
     {
-        // Dont go left/right out of bounds
-        if (pos.x <= -playerBounds || pos.x >= playerBounds)
-            return;
-
-        // Dont go back behind start line
-        if (pos.z < 0)
+        // Dont go left/right out of bounds or back behind start line
+        if (pos.x <= -playerBounds || pos.x >= playerBounds || pos.z < 0)
             return;
 
         // Check if there is an obstacle here
-        foreach(GameObject o in GameManager.Instance.Lanes[(int)pos.z].obstacles)
+        foreach(GameObject o in GameManager.Instance.lanes[(int)pos.z].obstacles)
             if(o.transform.position.x == Mathf.Round(pos.x)) 
                 return;
 
         // Check if player is moving on the water
-        if(GameManager.Instance.Lanes[(int)pos.z].type == LaneType.water)
+        if(GameManager.Instance.lanes[(int)pos.z].type == LaneType.Water)
 		{
-            // If the position is on the log then ride the log
+            // If the position is on the log then ride the log (mount it)
+            // This also handles moving on the log from one pos to another
             GameObject goalLog = PositionIsOnLog(pos, (int)pos.z);
             if (goalLog != null)
             {
@@ -96,43 +99,22 @@ public class Player : MonoBehaviour
                 Vector3 tile = FindClosestTileOnLog(goalLog, pos);
                 transform.position = tile;
                 logBound = true;
-                log = goalLog.transform;
-                logOffset = goalLog.transform.position.x - tile.x;
+                mountedLog = goalLog.transform;
+                posOffsetOnLog = goalLog.transform.position.x - tile.x;
             }
             else // Else drown
             {
                 Die();
             }
-            // TODO: handle going left/right on a log/going off the log into the water
-            /*int dir = Mathf.RoundToInt(pos.x) - Mathf.RoundToInt(transform.position.x);
-            if (logBound && dir != 0)
-            {
-                GameObject goalLog = PositionIsOnLog(transform.position, (int)pos.z);
-                if (goalLog != null)
-                {
-                    // Find tile to stand on
-                    Vector3 tile = FindClosestTileOnLog(goalLog, pos);
-                    transform.position = tile;
-                    logBound = true;
-                    log = goalLog.transform;
-                    logOffset = goalLog.transform.position.x - tile.x;
-                }
-
-                else // Else drown
-                {
-                    Die();
-                }
-            }*/
-            // Only if going left/right
         }
 
         // If we want to get off the log
-        if (GameManager.Instance.Lanes[(int)pos.z].type != LaneType.water && logBound)
+        if (GameManager.Instance.lanes[(int)pos.z].type != LaneType.Water && logBound)
 		{
             // Find closest tile and if it is not an obstacle go on it
             pos = new Vector3(Mathf.Round(pos.x), pos.y, pos.z);
-            if(GameManager.Instance.Lanes[(int)pos.z].type == LaneType.safe)
-                foreach (GameObject o in GameManager.Instance.Lanes[(int)pos.z].obstacles)
+            if(GameManager.Instance.lanes[(int)pos.z].type == LaneType.Grass)
+                foreach (GameObject o in GameManager.Instance.lanes[(int)pos.z].obstacles)
                     if (o.transform.position.x == Mathf.Round(pos.x))
                         return;
             logBound = false;
@@ -149,10 +131,12 @@ public class Player : MonoBehaviour
             _steps = (int)pos.z;
     }
 
+    // Handle trigger colliders (coins and vehicles)
 	private void OnTriggerEnter(Collider other)
 	{
         if(other.tag == "Collectible")
 		{
+            // Increase coins count and save it to player prefs
             _coins++;
             PlayerPrefs.SetInt("Coins", _coins);
             other.GetComponent<Coin>().PickUp();
@@ -163,10 +147,13 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// If the given position is on a log, it will return that log
+    /// </summary>
     private GameObject PositionIsOnLog(Vector3 pos, int lane)
     {
-        // Go trough all logs
-        foreach (GameObject logIt in GameManager.Instance.Lanes[lane].vehicles)
+        // Go trough all logs in the lane, and if the player pos and log pos line up, return it
+        foreach (GameObject logIt in GameManager.Instance.lanes[lane].vehicles)
         {
             Vector3 logPos = logIt.transform.position;
             float logSize = 3.0f;
@@ -181,6 +168,9 @@ public class Player : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// For given log finds which of three tiles on it are closest to the given position
+    /// </summary>
     private Vector3 FindClosestTileOnLog(GameObject _log, Vector3 pos)
 	{
         //float pos = transform.position.x;
@@ -193,6 +183,9 @@ public class Player : MonoBehaviour
             return _log.transform.position + Vector3.right;
 	}
 
+    /// <summary>
+    /// Play death sound, call GameManagers GameOver() and instantiate death particles
+    /// </summary>
 	private void Die()
 	{
         //Destroy(gameObject);
