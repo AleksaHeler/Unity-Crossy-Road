@@ -16,6 +16,9 @@ Main colors:
 
 ## Screenshots
 
+![](CrossyRoadBuild/crossy_road.png)
+![](CrossyRoadBuild/crossy_road_2.png)
+
 ## Tasks
 [Total time spent: 20h]
 ### Scenes
