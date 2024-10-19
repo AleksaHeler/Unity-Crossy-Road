@@ -1,5 +1,4 @@
 # Crossy Road
-[Hours spent: 20]
 
 ## About
 This is a game similar to [Crossy Road](https://play.google.com/store/apps/details?id=com.yodo1.crossyroad&hl=en&gl=US) and [Frogger](https://en.wikipedia.org/wiki/Frogger) made for an internship application.
@@ -15,9 +14,10 @@ Main colors:
 - #6ADE91 - green
 - #DEAB5F - light orange
 
+## Screenshots
 
 ## Tasks
-
+[Total time spent: 20h]
 ### Scenes
 - [X] Main menu 
   - [X] 2 buttons:
@@ -25,13 +25,13 @@ Main colors:
     - [X] Button that toggles music and sound effects in whole game
     - [x] (optional) Quit button
   - [X] Background music
-- [ ] Game
+- [x] Game
   - [X] Player
   - [X] Environment
   - [X] Obstacles
   - [X] Collectables
-  - [ ] UI
-  - [ ] SFX
+  - [x] UI
+  - [x] SFX
 
 ### Player
 - [X] Controls: up-down arrow to move forward and backward by 1 step (move can be manifested as a small jump), and left-right arrow to move player along left and right axes.
